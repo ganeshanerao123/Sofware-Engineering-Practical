@@ -1,69 +1,47 @@
-import unittest
-import smtplib
-import OTPwithfunc as O1
+import random  #random module to get random integers to create OTp
+import senders_data #email and password of sender from another file
+import smtplib  #simple message transfer protocol#library to send email to users email_address
 
-Name="Ganesh"
-Email="aneraoganesh79@gmail.com"
+n=(int(input("Enter your range of otp ")))  #getting the input for length of otp
 
-class BetweenAssertMixin(object):
-    def assertBetween(self, x, low, hi):
-        if not (low <= x <= hi):
-            raise AssertionError('Length of OTP is %r should be in between %r and %r' % (x, low, hi))
+#function to generate otp 
+def generate_otp(n):
+    OTP=""
+    for i in range(n):
+        OTP+=str(random.randint(0,9))#OTP will append any random digits[index] 
+    return (OTP)
+
+
+#create gmails server
+server =smtplib.SMTP('smtp.gmail.com',587)
+
+#get senders email from another file
+Senders_email = senders_data.email
+Senders_password= senders_data.password
+
+#function to login and add tls to the server
+def login_into_sendersemail():
+    server.starttls()   #transfered layer security
+    server.login(Senders_email,password=Senders_password)  #Login into sender mail
+
+receivers_name=input("Enter receivers name ") 
+receivers_email=input("Enter receivers email ")
+
+
+
+#function to send email
+def send_email(): 
+
+    login_into_sendersemail()
+    #generate_otp function called
+    otp_var=generate_otp(n)
+    msg=("Hi "+ receivers_name +"\n"+ str(otp_var)+" is your OTP ")
+    print(msg)
+    server.sendmail(Senders_email,receivers_email,msg)
+    server.quit() #to quit the server
+    print("email has been sent!")
+
+#send emailfunction called
+send_email()
+
         
-class Test_otp(unittest.TestCase,BetweenAssertMixin):
-    def testcase1(self):
-        print("TestCase 1:")
-
-        self.assertIn("@",Email)
-        self.assertIn(".",Email)
-        self.assertIn("com",Email)
-
-        True_Str1 = "gmail" in Email        
-        if True_Str1 :
-            print("No Error Found in Email!")
-        else:
-            self.assertTrue(True_Str1)
-
-        otp = O1.generate_otp(4)
-        self.assertBetween(len(otp),4,8)
-
-        O1.send_email()
-        print()
-
-    def testcase2(self):
-        print("TestCase 2")
-
-        self.assertIn("@",Email)
-        self.assertIn(".",Email)
-        self.assertIn("com",Email)
-
-        True_Str1 = "@" and "." and "com" and "gmail" in Email        
-        if True_Str1 :
-            print("No Error Found in Email!")
-        else:
-            self.assertTrue(True_Str1)
-
-        otp = O1.generate_otp(5)
-        self.assertBetween(len(otp),4,8)
-
-        O1.send_email()
-        print()
-
-    def testcase3(self):
-        print("TestCase 3")
-        
-        self.assertIn("@",Email)
-        self.assertIn(".",Email)
-        self.assertIn("com",Email)
-
-        True_Str1 = "gmail" in Email        
-        if True_Str1 :
-            print("No Error Found in Email!")
-        else:
-            self.assertTrue(True_Str1)
-
-        otp = O1.generate_otp(9)
-        self.assertBetween(len(otp),4,8)
-        O1.send_email()
-        
-unittest.main()
